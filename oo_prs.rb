@@ -5,6 +5,7 @@
 class Player
   attr_reader :name
   attr_accessor :gesture
+  CHOICE = ['p', 'r', 's']
   def initialize(n)
     @name = n
   end
@@ -16,15 +17,16 @@ end
 class Gesture
   include Comparable
   attr_accessor :value
-  CHOICE = ['p', 'r', 's']
   def initialize(v)
     self.value = v
   end
 
   def <=>(another)
-    if (self.value == 'p' && another.value == 'r') || (self.value == 'r' && another.value == 's') || (self.value == 's' && another.value == 'p')
+    if (value == 'p' && another.value == 'r') ||
+       (value == 'r' && another.value == 's') || 
+       (value == 's' && another.value == 'p')
       1
-    elsif self.value == another.value
+    elsif value == another.value
       0
     else
       -1
@@ -37,37 +39,38 @@ class Human < Player
     begin
       puts "Choose one(p/r/s):"
       choice = gets.chomp.downcase
-    end until Gesture::CHOICE.include? choice
+    end until CHOICE.include? choice
     self.gesture = Gesture.new(choice)
   end
 end
 
 class Computer < Player
   def pick_gesture
-    self.gesture = Gesture.new(Gesture::CHOICE.sample)
+    self.gesture = Gesture.new(CHOICE.sample)
   end
 end
 
 class Judgment
   attr_accessor :player1, :player2
-  def initialize(p1, p2)
-    self.player1 = p1
-    self.player2 = p2
+  def initialize(player1, player2)
+    self.player1 = player1
+    self.player2 = player2
   end
-  def judge(g1, g2)
-    if g1 == g2
+
+  def judge(gesture1, gesture2)
+    if gesture1 == gesture2
       say "It's a tie!"
-    elsif g1 > g2
+    elsif gesture1 > gesture2
       say "#{player1.name} won!"
-      show_winning_msg(g1.value)
-    else g1 < g2
+      show_winning_msg(gesture1.value)
+    else gesture1 < gesture2
       say "#{player2.name} won!"
-      show_winning_msg(g2.value)
+      show_winning_msg(gesture2.value)
     end
   end
 
-  def show_winning_msg(gesture)
-    case gesture
+  def show_winning_msg(gesture_value)
+    case gesture_value
     when 'p'
       say "Paper wraps Rock!"
     when 'r'
@@ -88,7 +91,7 @@ class Game
   def initialize
     @human = Human.new("Alan")
     @computer = Computer.new("Mac")
-    @judgment = Judgment.new(self.human, self.computer)
+    @judgment = Judgment.new(human, computer)
   end
 
   def play
@@ -100,6 +103,6 @@ end
 
 begin
   Game.new.play
-  puts "play again?(y/n)"
+  print "play again?(y/n):"
   is_play = gets.chomp.downcase
 end while is_play == 'y'
